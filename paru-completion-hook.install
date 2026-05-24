@@ -2,12 +2,12 @@ configure_paru_conf() {
     local file="$1"
     if [ -f "$file" ]; then
         if grep -q "^[[:space:]]*#\?[[:space:]]*CompletionInterval[[:space:]]*=" "$file"; then
-            sed -i 's/^[[:space:]]*#\?[[:space:]]*CompletionInterval[[:space:]]*=.*/CompletionInterval = -1/' "$file"
+            sed -i 's/^[[:space:]]*#\?[[:space:]]*CompletionInterval[[:space:]]*=.*/CompletionInterval = 999999/' "$file"
         else
             if grep -q "^\[options\]" "$file"; then
-                sed -i '/^\[options\]/a CompletionInterval = -1' "$file"
+                sed -i '/^\[options\]/a CompletionInterval = 999999' "$file"
             else
-                echo -e "\n[options]\nCompletionInterval = -1" >> "$file"
+                echo -e "\n[options]\nCompletionInterval = 999999" >> "$file"
             fi
         fi
     fi
