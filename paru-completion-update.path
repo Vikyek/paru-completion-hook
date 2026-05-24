@@ -1,0 +1,9 @@
+[Unit]
+Description=Monitor pacman sync database for updates
+
+[Path]
+PathChanged=/var/lib/pacman/sync
+Unit=paru-completion-update.service
+
+[Install]
+WantedBy=multi-user.target

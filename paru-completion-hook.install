@@ -1,0 +1,72 @@
+configure_paru_conf() {
+    local file="$1"
+    if [ -f "$file" ]; then
+        if grep -q "^[[:space:]]*#\?[[:space:]]*CompletionInterval[[:space:]]*=" "$file"; then
+            sed -i 's/^[[:space:]]*#\?[[:space:]]*CompletionInterval[[:space:]]*=.*/CompletionInterval = -1/' "$file"
+        else
+            if grep -q "^\[options\]" "$file"; then
+                sed -i '/^\[options\]/a CompletionInterval = -1' "$file"
+            else
+                echo -e "\n[options]\nCompletionInterval = -1" >> "$file"
+            fi
+        fi
+    fi
+}
+
+restore_paru_conf() {
+    local file="$1"
+    if [ -f "$file" ]; then
+        if grep -q "^[[:space:]]*CompletionInterval[[:space:]]*=" "$file"; then
+            sed -i 's/^[[:space:]]*CompletionInterval[[:space:]]*=.*/#CompletionInterval = 7/' "$file"
+        fi
+    fi
+}
+
+post_install() {
+    echo "Configuring paru completion intervals..."
+    # Configure system-wide
+    configure_paru_conf "/etc/paru.conf"
+
+    # Configure all users
+    for user_home in /home/*; do
+        if [ -d "$user_home" ]; then
+            config_file="$user_home/.config/paru/paru.conf"
+            if [ -f "$config_file" ]; then
+                configure_paru_conf "$config_file"
+            fi
+        fi
+    done
+    configure_paru_conf "/root/.config/paru/paru.conf"
+
+    echo "Enabling systemd path monitor for pacman updates..."
+    systemctl daemon-reload
+    systemctl enable --now paru-completion-update.path
+
+    echo "Initializing paru completion cache..."
+    /usr/bin/paru-completion-update &
+}
+
+post_upgrade() {
+    post_install
+}
+
+pre_remove() {
+    echo "Disabling systemd path monitor..."
+    systemctl disable --now paru-completion-update.path || true
+    systemctl stop paru-completion-update.service || true
+}
+
+post_remove() {
+    echo "Restoring paru completion intervals to default..."
+    restore_paru_conf "/etc/paru.conf"
+    for user_home in /home/*; do
+        if [ -d "$user_home" ]; then
+            config_file="$user_home/.config/paru/paru.conf"
+            if [ -f "$config_file" ]; then
+                restore_paru_conf "$config_file"
+            fi
+        fi
+    done
+    restore_paru_conf "/root/.config/paru/paru.conf"
+    systemctl daemon-reload
+}
