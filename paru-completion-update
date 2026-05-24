@@ -1,18 +1,46 @@
 #!/bin/bash
-# Update paru completion cache for all active users
+# Update paru completion cache for all active users and all repos
 for user_home in /home/*; do
     if [ -d "$user_home" ]; then
         username=$(basename "$user_home")
         if [ -d "$user_home/.cache/paru" ] || [ -d "$user_home/.config/paru" ]; then
             echo "Updating paru completion cache for user: $username"
-            runuser -l "$username" -c "paru -Pc --completioninterval 0" >/dev/null 2>&1 &
+            runuser -l "$username" -c '
+                # Get all pacman repositories
+                repos=$(pacman-conf --repo-list 2>/dev/null)
+                # Get all PKGBUILD repositories configured in paru
+                pkgbuild_repos=$(paru -Sl --pkgbuilds 2>/dev/null | cut -d " " -f1 | uniq)
+                
+                # 1. Update AUR completion cache
+                paru -Pc --completioninterval 0 >/dev/null 2>&1
+                
+                # 2. Update completion files for each repository
+                cache_dir=${XDG_CACHE_HOME:-$HOME/.cache}/paru
+                mkdir -p "$cache_dir"
+                for repo in $repos $pkgbuild_repos; do
+                    if [ "$repo" != "aur" ] && [ -n "$repo" ]; then
+                        paru -Sl "$repo" 2>/dev/null | cut -d " " -f2 > "$cache_dir/packages.$repo"
+                    fi
+                done
+            ' >/dev/null 2>&1 &
         fi
     fi
 done
 
 if [ -d "/root/.cache/paru" ] || [ -d "/root/.config/paru" ]; then
     echo "Updating paru completion cache for user: root"
-    paru -Pc --completioninterval 0 >/dev/null 2>&1 &
+    (
+        repos=$(pacman-conf --repo-list 2>/dev/null)
+        pkgbuild_repos=$(paru -Sl --pkgbuilds 2>/dev/null | cut -d " " -f1 | uniq)
+        paru -Pc --completioninterval 0 >/dev/null 2>&1
+        cache_dir="/root/.cache/paru"
+        mkdir -p "$cache_dir"
+        for repo in $repos $pkgbuild_repos; do
+            if [ "$repo" != "aur" ] && [ -n "$repo" ]; then
+                paru -Sl "$repo" 2>/dev/null | cut -d " " -f2 > "$cache_dir/packages.$repo"
+            fi
+        done
+    ) >/dev/null 2>&1 &
 fi
 
 wait
