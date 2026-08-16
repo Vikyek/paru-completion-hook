@@ -13,7 +13,7 @@ source=(
     "paru-completion-update.path"
     "paru-completion-update.service"
 )
-sha256sums=('7d7f4359b6f3e8ba064de38ca65790548d7177d0307a9487b18317c92eed4435'
+sha256sums=('adad86f8cfb5164c94d49b7da28d205cb36cb45358b7fa42f017207d4a749a68'
             '82006c2834506fe87ae43f18bdecfe713952ee13fac403fdba3fe9250ec840ed'
             '8ab053fa324e5cbd5d635895bd500ffaebeafbe11fa0c7704329acaa3d6dabd9'
             'aee25152324bbe9aa467f7e3274d21eaa53fb201dddea98baa81c7832fce1565')
