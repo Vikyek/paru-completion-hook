@@ -1,0 +1,20 @@
+pkgbase = paru-completion-hook
+	pkgdesc = Pacman hook and systemd path unit to automatically update the paru completion cache
+	pkgver = 1.0.0
+	pkgrel = 3
+	url = https://github.com/Vikyek/paru-completion-hook
+	install = paru-completion-hook.install
+	arch = any
+	license = GPL-3.0-only
+	depends = paru
+	depends = bash
+	source = paru-completion-update
+	source = paru-completion-update.hook
+	source = paru-completion-update.path
+	source = paru-completion-update.service
+	sha256sums = adad86f8cfb5164c94d49b7da28d205cb36cb45358b7fa42f017207d4a749a68
+	sha256sums = 82006c2834506fe87ae43f18bdecfe713952ee13fac403fdba3fe9250ec840ed
+	sha256sums = 8ab053fa324e5cbd5d635895bd500ffaebeafbe11fa0c7704329acaa3d6dabd9
+	sha256sums = aee25152324bbe9aa467f7e3274d21eaa53fb201dddea98baa81c7832fce1565
+
+pkgname = paru-completion-hook
