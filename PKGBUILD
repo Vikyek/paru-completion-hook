@@ -1,6 +1,6 @@
 pkgname=paru-completion-hook
 pkgver=1.0.0
-pkgrel=3
+pkgrel=4
 pkgdesc="Pacman hook and systemd path unit to automatically update the paru completion cache"
 arch=('any')
 url="https://github.com/Vikyek/paru-completion-hook"
