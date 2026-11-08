@@ -21,7 +21,7 @@ sha256sums=('adad86f8cfb5164c94d49b7da28d205cb36cb45358b7fa42f017207d4a749a68'
 package() {
     # Install update script
     install -Dm755 "${srcdir}/paru-completion-update" "${pkgdir}/usr/bin/paru-completion-update"
-    install -Dm644 man1/paru-completion-update.1 "${pkgdir}/usr/share/man/man1/paru-completion-update.1"
+    install -Dm644 "$startdir/man1/paru-completion-update.1" "${pkgdir}/usr/share/man/man1/paru-completion-update.1"
 
     # Install pacman hook
     install -Dm644 "${srcdir}/paru-completion-update.hook" "${pkgdir}/usr/share/libalpm/hooks/paru-completion-update.hook"
