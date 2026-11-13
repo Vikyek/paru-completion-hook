@@ -12,16 +12,18 @@ source=(
     "paru-completion-update.hook"
     "paru-completion-update.path"
     "paru-completion-update.service"
+    "paru-completion-update.1"
 )
 sha256sums=('adad86f8cfb5164c94d49b7da28d205cb36cb45358b7fa42f017207d4a749a68'
             '82006c2834506fe87ae43f18bdecfe713952ee13fac403fdba3fe9250ec840ed'
             '8ab053fa324e5cbd5d635895bd500ffaebeafbe11fa0c7704329acaa3d6dabd9'
-            'aee25152324bbe9aa467f7e3274d21eaa53fb201dddea98baa81c7832fce1565')
+            'aee25152324bbe9aa467f7e3274d21eaa53fb201dddea98baa81c7832fce1565'
+            'e1efb7d721446cc32129a3a048c0c541772c66a43958c10729b328e51177cc56')
 
 package() {
     # Install update script
     install -Dm755 "${srcdir}/paru-completion-update" "${pkgdir}/usr/bin/paru-completion-update"
-    install -Dm644 "$startdir/man1/paru-completion-update.1" "${pkgdir}/usr/share/man/man1/paru-completion-update.1"
+    install -Dm644 "${srcdir}/paru-completion-update.1" "${pkgdir}/usr/share/man/man1/paru-completion-update.1"
 
     # Install pacman hook
     install -Dm644 "${srcdir}/paru-completion-update.hook" "${pkgdir}/usr/share/libalpm/hooks/paru-completion-update.hook"

@@ -1,0 +1,13 @@
+.TH PARU-COMPLETION-UPDATE 1 "November 2026" "paru-completion-hook 1.0.0" "User Commands"
+.SH NAME
+paru-completion-update \- Updates shell completion cache for paru
+.SH SYNOPSIS
+.B paru-completion-update
+.SH DESCRIPTION
+.B paru-completion-update
+queries installed system packages and available repositories to regenerate cached completion lists for the \fBparu\fR AUR helper across bash, zsh, and fish shells. It is typically invoked automatically via libalpm hooks or systemd path units upon package transaction completions.
+.SH SEE ALSO
+.BR paru (8),
+.BR pacman (8)
+.SH AUTHORS
+Maintained by Vikyek <https://github.com/Vikyek/paru-completion-hook>.
