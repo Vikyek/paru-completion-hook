@@ -34,14 +34,14 @@ jobs:
 
           # 1. PKGBUILD (skipping VCS packages with -git suffix or pkgver() function)
           if [ -f PKGBUILD ]; then
-            PKGNAME=$(grep -Po '^[[:space:]]*pkgname=\K[^\s#]+' PKGBUILD | head -n 1 | tr -d '"'\'') || true
+            PKGNAME=$(grep -Po '^[[:space:]]*pkgname=\K[^\s#]+' PKGBUILD | head -n 1 | tr -d '\042\047') || true
             IS_VCS=false
             if [[ "$PKGNAME" == *-git ]] || grep -qE '^[[:space:]]*pkgver\s*\(\)' PKGBUILD; then
               IS_VCS=true
             fi
 
             if [ "$IS_VCS" = false ]; then
-              PKGVER=$(grep -Po '^[[:space:]]*pkgver=\K[^\s#]+' PKGBUILD | head -n 1 | tr -d '"'\'') || true
+              PKGVER=$(grep -Po '^[[:space:]]*pkgver=\K[^\s#]+' PKGBUILD | head -n 1 | tr -d '\042\047') || true
               if [ -n "$PKGVER" ]; then
                 VERSION="$PKGVER"
                 echo "Found version $VERSION in PKGBUILD ($PKGNAME)"
@@ -53,7 +53,7 @@ jobs:
 
           # 2. pyproject.toml
           if [ -z "$VERSION" ] && [ -f pyproject.toml ]; then
-            PY_VER=$(sed -n -E 's/^[[:space:]]*version[[:space:]]*=[[:space:]]*["'\'']([^"'\'']+)["'\''].*/\1/p' pyproject.toml | head -n 1) || true
+            PY_VER=$(sed -n -E 's/^[[:space:]]*version[[:space:]]*=[[:space:]]*["\047]([^"\047]+)["\047].*/\1/p' pyproject.toml | head -n 1) || true
             if [ -n "$PY_VER" ]; then
               VERSION="$PY_VER"
               echo "Found version $VERSION in pyproject.toml"
