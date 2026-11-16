@@ -32,9 +32,9 @@ jobs:
 
           VERSION=""
 
-          # 1. PKGBUILD (skipping VCS packages with -git suffix or pkgver() function)
+          # 1. PKGBUILD (skipping VCS packages with -git suffix or pkgver() function unless static version is bumped)
           if [ -f PKGBUILD ]; then
-            PKGNAME=$(grep -Po '^[[:space:]]*pkgname=\K[^\s#]+' PKGBUILD | head -n 1 | tr -d '\042\047') || true
+            PKGNAME=$(grep -Po '^[[:space:]]*pkgname=\K[^\s#]+' PKGBUILD | head -n 1 | tr -d '\042\047()') || true
             IS_VCS=false
             if [[ "$PKGNAME" == *-git ]] || grep -qE '^[[:space:]]*pkgver\s*\(\)' PKGBUILD; then
               IS_VCS=true
@@ -47,7 +47,34 @@ jobs:
                 echo "Found version $VERSION in PKGBUILD ($PKGNAME)"
               fi
             else
-              echo "PKGBUILD is VCS package ($PKGNAME with pkgver() / -git); skipping PKGBUILD"
+              # Check if static pkgver was bumped in the commit(s) or workflow was manually dispatched
+              STATIC_BUMPED=false
+              if [ "${GITHUB_EVENT_NAME:-}" = "workflow_dispatch" ]; then
+                STATIC_BUMPED=true
+              else
+                BEFORE="${{ github.event.before || '' }}"
+                if [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] && git rev-parse --verify "$BEFORE" >/dev/null 2>&1; then
+                  if git diff "$BEFORE" HEAD -- PKGBUILD 2>/dev/null | grep -qE '^\+[[:space:]]*pkgver='; then
+                    STATIC_BUMPED=true
+                  fi
+                elif git rev-parse HEAD~1 >/dev/null 2>&1; then
+                  if git diff HEAD~1 HEAD -- PKGBUILD 2>/dev/null | grep -qE '^\+[[:space:]]*pkgver='; then
+                    STATIC_BUMPED=true
+                  fi
+                elif git show HEAD -- PKGBUILD 2>/dev/null | grep -qE '^\+[[:space:]]*pkgver='; then
+                  STATIC_BUMPED=true
+                fi
+              fi
+
+              if [ "$STATIC_BUMPED" = true ]; then
+                PKGVER=$(grep -Po '^[[:space:]]*pkgver=\K[^\s#]+' PKGBUILD | head -n 1 | tr -d '\042\047') || true
+                if [ -n "$PKGVER" ]; then
+                  VERSION="$PKGVER"
+                  echo "Found bumped static version $VERSION in VCS PKGBUILD ($PKGNAME)"
+                fi
+              else
+                echo "PKGBUILD is VCS package ($PKGNAME with pkgver() / -git) and static pkgver was not bumped; skipping PKGBUILD"
+              fi
             fi
           fi
 
